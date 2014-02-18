@@ -98,8 +98,8 @@ var mcxnow = function(user, pass, nonceInput) {
       for(i = 0; i < data.history[0].o.length; i++) {
 		output[i] = {
 		date: data.history[0].o[i].t[0],
-		amount: data.history[0].o[i].c1[0]
 		price: data.history[0].o[i].p[0],
+		amount: data.history[0].o[i].c1[0]
 		};
       }
       callback(err, output.reverse());
