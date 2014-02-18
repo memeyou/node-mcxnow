@@ -93,16 +93,21 @@ var mcxnow = function(user, pass, nonceInput) {
   };
   
   self.getHistory = function(curr, callback) {
-    self.orderbook(curr, function(err, data) {
-      var output = [];
-      for(i = 0; i < data.history[0].o.length; i++) {
-		output[i] = {
-		date: data.history[0].o[i].t[0],
-		price: data.history[0].o[i].p[0],
-		amount: data.history[0].o[i].c1[0]
-		};
+    self.orderbook(curr, function(e, d) {
+      if(d && d.history && d.history[0] && d.history[0].o) {
+        var b = d.history[0].o;
+        var o = [];
+        for(i = 0; i < b.length; i++) {
+          try {
+            o[i] = {
+              date: b[i].t[0],
+              price: b[i].p[0],
+              amount: b[i].c1[0]
+            };
+          } catch(e) { return callback(new Error(e)); }
+        }
+        callback(e, o.reverse());
       }
-      callback(err, output.reverse());
     });
   };
   
