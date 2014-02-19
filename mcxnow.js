@@ -73,6 +73,7 @@ var mcxnow = function(user, pass, nonceInput) {
   };
   
   self.trade = function(curr, amount, price, buy, callback) {
+    if(buy==1||buy=='1') amount = amount*price;
     self.makeRequest('action?trade&sk=SESSIONKEY&cur='
       + curr + '&buy=' + buy + '&amt=' + amount
       + '&price=' + price + '&enabled=1', callback);
