@@ -38,7 +38,7 @@ var mcxnow = function(user, pass, nonceInput) {
           if(err || response.statusCode !== 200)
             return callback(new Error(err ? err : response.statusCode));
             
-          if(!body) return true;
+          if(!body) return callback(null, false);
 
           try {
             xml2js.parseString(body, function (err, data) {
@@ -68,10 +68,6 @@ var mcxnow = function(user, pass, nonceInput) {
     });
   };
 
-  self.cancelTrade = function(orderId, callback) {
-    self.makeRequest('orders?cur=' + curr, callback);
-  };
-  
   self.trade = function(curr, amount, price, buy, callback) {
     if(buy==1||buy=='1') amount = amount*price;
     self.makeRequest('action?trade&sk=SESSIONKEY&cur='
@@ -86,8 +82,8 @@ var mcxnow = function(user, pass, nonceInput) {
   self.getTicker = function(curr, callback) {
     self.orderbook(curr, function(err, data) {
       var ticker = {
-        ask:  data.buy[0].o[0].p[0],
-        bid:  data.sell[0].o[0].p[0]
+        bid:  data.buy[0].o[0].p[0],
+        ask:  data.sell[0].o[0].p[0]
       }
       callback(err, ticker);
     });
@@ -107,8 +103,9 @@ var mcxnow = function(user, pass, nonceInput) {
             };
           } catch(e) { return callback(new Error(e)); }
         }
-        callback(e, o.reverse());
+        return callback(e, o.reverse());
       }
+      callback(new Error("Invalid or missing data from getHistory."), false);
     });
   };
   
@@ -121,9 +118,10 @@ var mcxnow = function(user, pass, nonceInput) {
 
   self.cancelOrder = function(curr, callback) {
     self.info(curr, function(data) {
-      if(!data.orders[0].o) return callback(null, false);
+      if(!data.orders ||
+        data.orders[0] ||
+        data.orders[0].o) return callback(null, false);
       var id = data.orders[0].o[0].id;
-
       self.makeRequest('action?canceltrade'
         + '&sk=SESSIONKEY'
         + '&cur=' + curr
