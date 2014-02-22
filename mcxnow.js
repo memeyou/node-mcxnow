@@ -109,6 +109,46 @@ var mcxnow = function(user, pass, nonceInput) {
     });
   };
   
+  self.getBuyOrders = function(curr, callback) {
+    self.orderbook(curr, function(e, d) {
+      if(d && d.buy && d.buy[0] && d.buy[0].o) {
+        var b = d.buy[0].o;
+        var o = [];
+        for(i = 0; i < b.length; i++) {
+          try {
+            o[i] = {
+              price: b[i].p[0],              
+              amount: b[i].c1[0],
+              total: b[i].c2[0],
+            };
+          } catch(e) { return callback(new Error(e)); }
+        }
+        return callback(e, o.reverse());
+      }
+      callback(new Error("Invalid or missing data from getBuyOrders."), false);
+    });
+  };
+
+  self.getSellOrders = function(curr, callback) {
+    self.orderbook(curr, function(e, d) {
+      if(d && d.sell && d.sell[0] && d.sell[0].o) {
+        var b = d.sell[0].o;
+        var o = [];
+        for(i = 0; i < b.length; i++) {
+          try {
+            o[i] = {
+              price: b[i].p[0],              
+              amount: b[i].c1[0],
+              total: b[i].c2[0],
+            };
+          } catch(e) { return callback(new Error(e)); }
+        }
+        return callback(e, o.reverse());
+      }
+      callback(new Error("Invalid or missing data from getSellOrders."), false);
+    });
+  };
+
   self.getOrders = function(curr, callback) {
     self.info(curr, function(data) {
       if(!data.orders[0].o) return callback(null, false);
